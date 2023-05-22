@@ -33,7 +33,7 @@ class AuthController extends Controller
         $user->role = $request->role;
         $user->save();
 
-        return response()->json(['status' => 'success', 'message' => 'User registered successfully'], 201);
+        return response()->json(['status' => 'success', 'message' => 'User registered successfully', 'data' => $user], 201);
     }
 
     public function login(Request $request)
@@ -43,7 +43,7 @@ class AuthController extends Controller
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
             $request->session()->regenerate();
-            return response()->json(['status' => 'success', 'message' => 'User logged in successfully'], 200);
+            return response()->json(['status' => 'success', 'message' => 'User logged in successfully', 'data' => $user], 200);
         } else {
             return response()->json(['status' => 'failed', 'error' => 'Unauthorized'], 401);
         }
