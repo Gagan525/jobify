@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Job;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\DB;
@@ -190,7 +189,7 @@ class JobController extends Controller
         }
 
         // Retrieve relevant jobs based on matching criteria
-        $allJobs = Job::with('skills')->get();
+        $allJobs = Job::where('status', 'active')->with('skills')->get();
 
         // Implement profile matching algorithm to determine relevance
         $relevantJobs = $this->applyProfileMatchingAlgorithm($allJobs, $candidate);

@@ -78,4 +78,22 @@ class ApplicationController extends Controller
             return response()->json(['status' => 'failed', 'error' => 'Failed to retrieve applications.', 'message' => $e->getMessage()], 500);
         }
     }
+
+    public function listApplicationsForJob($jobId)
+    {
+        try {
+            // Retrieve the applications for the specified job with candidate details and skills
+            $applications = Application::where('jobId', $jobId)
+                ->with(['candidate.candidates.skills'])
+                ->get();
+                // ->paginate(10); // Change the value '10' to set the number of items per page
+
+            // Customize the pagination response
+            // Paginator::useBootstrap();
+
+            return response()->json(['status' => 'success', 'applications' => $applications], 200);
+        } catch (Exception $e) {
+            return response()->json(['status' => 'failed', 'error' => 'Failed to retrieve applications.', 'message' => $e->getMessage()], 500);
+        }
+    }
 }

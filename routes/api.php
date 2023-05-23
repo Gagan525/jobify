@@ -34,6 +34,7 @@ Route::middleware('auth')->group(function () {
         Route::patch('/job/update_status/{id}', [JobController::class, 'updateStatus']);
         Route::get('/job/posts', [JobController::class, 'getJobsByUser']);
         Route::post('/application/update/{ApplicationId}', [ApplicationController::class, 'updateApplicationStatus']);
+        Route::get('jobs/applications/{jobId}', [ApplicationController::class, 'listApplicationsForJob']);
     
     });
     Route::group(['middleware' => 'candidate'], function () {
