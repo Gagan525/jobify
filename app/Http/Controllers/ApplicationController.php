@@ -65,7 +65,9 @@ class ApplicationController extends Controller
             $user = $request->user(); // Get the authenticated user
 
             // Retrieve applications for the logged-in user with pagination
-            $applications = Application::where('candidateId', $user->id)->paginate(10); // Change the value '10' to set the number of items per page
+            $applications = Application::where('candidateId', $user->id)
+            ->with('job') // Eager load the job details
+            ->paginate(10); // Change the value '10' to set the number of items per page
 
             // Customize the pagination response
             // Paginator::useBootstrap();
