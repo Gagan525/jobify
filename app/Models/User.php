@@ -58,6 +58,6 @@ class User extends Authenticatable
 
     public function candidates()
     {
-        return $this->hasMany(CandidateInfo::class);
+        return $this->hasOne(CandidateInfo::class, 'user_id')->with('skills');
     }
 }

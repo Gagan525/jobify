@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Job;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\DB;
 
 class JobController extends Controller
 {
@@ -33,6 +35,7 @@ class JobController extends Controller
         }
 
         try {
+            DB::beginTransaction();
             // Create the job using the validated data
             $job = new Job;
             $job->title = $request->title;
@@ -53,8 +56,11 @@ class JobController extends Controller
             // Attach the skillIds to the job using the job_skill_rel table
             $job->skills()->attach($request->skillIds);
 
+            DB::commit();
+
             return response()->json(['message' => 'Job created successfully', 'job' => $job], 201);
         } catch (\Exception $e) {
+            DB::rollBack();
             return response()->json(['error' => 'Failed to create job. Please try again.', 'message' => $e], 500);
         }
     }
@@ -129,6 +135,8 @@ class JobController extends Controller
             return response()->json(['status' => 'failed', 'error' => 'Job-not-found.', "message" => $e->getMessage()], 404);
         }
     }
+
+    
     public function updateStatus(Request $request, $id)
     {
         try {
@@ -166,5 +174,62 @@ class JobController extends Controller
         } catch (Exception $e) {
             return response()->json(['status' => 'failed', 'error' => 'Failed to retrieve jobs.', 'message' => $e], 500);
         }
+    }
+
+
+    public function getRelevantJobsForCandidate(Request $request)
+    {
+        // Retrieve the currently logged-in candidate's information
+        $candidate = $request->user()->candidates()->with('skills')->first();
+
+        if (!$candidate) {
+            // Handle the case when candidate information is not found
+            // Return an appropriate response or redirect the user
+            // For example:
+            return response()->json(["status" => 'failed', 'error' => 'candidate-information-not-found'], 404);
+        }
+
+        // Retrieve relevant jobs based on matching criteria
+        $allJobs = Job::with('skills')->get();
+
+        // Implement profile matching algorithm to determine relevance
+        $relevantJobs = $this->applyProfileMatchingAlgorithm($allJobs, $candidate);
+
+        // Return the relevant jobs in the decreasing order of relevance
+        return response()->json(["status" => 'success', 'status' => 'success', 'jobs' => $relevantJobs], 200);
+
+    }
+
+    private function applyProfileMatchingAlgorithm($jobs, $candidate)
+    {
+        // Define weights for different criteria
+        $skillWeight = 0.6;
+        $locationWeight = 0.2;
+        $experienceWeight = 0.2;
+
+        // Calculate relevance score for each job based on criteria and weights
+        foreach ($jobs as $job) {
+            $relevanceScore = 0;
+
+            // Calculate skill relevance score
+            $matchedSkills = $job->skills->pluck('id')->intersect($candidate->skills->pluck('id'));
+            $skillRelevanceScore = $matchedSkills->count() / $candidate->skills->count();
+            $relevanceScore += $skillRelevanceScore * $skillWeight;
+
+            // Calculate location relevance score
+            $locationRelevanceScore = ($job->location === $candidate->location) ? 1 : 0;
+            $relevanceScore += $locationRelevanceScore * $locationWeight;
+
+            // Calculate experience relevance score
+            $experienceRelevanceScore = 1 - abs(($job->min_exp + $job->max_exp) / 2 - $candidate->total_experience) / $candidate->total_experience;
+            $relevanceScore += $experienceRelevanceScore * $experienceWeight;
+
+            $job->relevanceScore = $relevanceScore;
+        }
+
+        // Sort jobs in descending order of relevance score
+        $jobs = $jobs->sortByDesc('relevanceScore');
+
+        return $jobs;
     }
 }

@@ -41,6 +41,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/job/apply/{jobId}', [ApplicationController::class, 'applyForJob']);
         Route::get('/job/applied', [ApplicationController::class, 'listApplications']);        
         Route::get('/jobs', [JobController::class, 'list']);
+        Route::get('/job/relevant', [JobController::class, 'getRelevantJobsForCandidate']);
         Route::get('/job/{id}', [JobController::class, 'jobDetails']);
         Route::post('/profile_info/create', [CandidateInfoController::class, 'store']);
     });

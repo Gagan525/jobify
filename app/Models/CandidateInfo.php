@@ -18,7 +18,7 @@ class CandidateInfo extends Model
 
     public function skills()
     {
-        return $this->belongsToMany(Skill::class, 'cand_skill_rel', 'user_id', 'skill_id')
+        return $this->belongsToMany(Skill::class, 'cand_skill_rel', 'cand_info_id', 'skill_id')
             ->withTimestamps();
     }
 }

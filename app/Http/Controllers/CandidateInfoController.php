@@ -6,6 +6,7 @@ use App\Models\CandidateInfo;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 
 class CandidateInfoController extends Controller
 {
@@ -31,6 +32,7 @@ class CandidateInfoController extends Controller
         }
 
         try {
+            DB::beginTransaction();
             // Create the candidate info using the validated data
             $candidateInfo = new CandidateInfo;
             // $candidateInfo->candidate_id = $request->candidate_id;
@@ -51,9 +53,11 @@ class CandidateInfoController extends Controller
 
             // Sync the skills with the candidate info
             $candidateInfo->skills()->sync($request->skills);
+            DB::commit();
 
             return response()->json(['status' => 'success', 'message' => 'Candidate info created successfully', 'candidate_info' => $candidateInfo], 201);
         } catch (\Exception $e) {
+            DB::rollBack();
             return response()->json(['status' => 'failed', 'error' => $e], 500);
         }
     }

@@ -13,12 +13,12 @@ return new class extends Migration
     {
         Schema::create('cand_skill_rel', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('cand_info_id');
             $table->unsignedBigInteger('skill_id');
             $table->timestamps();
 
             // Define foreign key relationships
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('cand_info_id')->references('id')->on('candidate_info')->onDelete('cascade');
             $table->foreign('skill_id')->references('id')->on('skills')->onDelete('cascade');
         });
     }
