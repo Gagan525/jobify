@@ -45,6 +45,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/job/relevant', [JobController::class, 'getRelevantJobsForCandidate']);
         Route::get('/job/{id}', [JobController::class, 'jobDetails']);
         Route::post('/profile_info/create', [CandidateInfoController::class, 'store']);
+        Route::get('/profile_info', [CandidateInfoController::class, 'getCandidateInfo']);
+        
     });
     Route::post('logout', [AuthController::class, 'logout']);
     Route::get('/skills', [SkillController::class, 'getAllSkills']);
