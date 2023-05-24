@@ -40,7 +40,6 @@ class CandidateInfoController extends Controller
             } else {
                 // Create new candidate info if it doesn't exist
                 $candidateInfo = new CandidateInfo;
-                $candidate->candidates()->save($candidateInfo);
             }
 
             // Update the candidate info using the validated data
@@ -52,8 +51,9 @@ class CandidateInfoController extends Controller
             $candidateInfo->current_salary = $request->current_salary;
             $candidateInfo->exp_salary = $request->exp_salary;
 
-            // Save the candidate info
-            $candidateInfo->save();
+            // Associate the info with the authenticated user
+            $candidate = $request->user(); // Get the authenticated user
+            $candidate->candidates()->save($candidateInfo);
 
             // Sync the skills with the candidate info
             $candidateInfo->skills()->sync($request->skills);
