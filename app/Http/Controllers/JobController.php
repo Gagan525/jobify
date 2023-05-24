@@ -163,7 +163,6 @@ class JobController extends Controller
     {
         try {
             // Get the authenticated user
-            //$user = auth()->user();
             $user = $request->user(); // Get the authenticated user
 
             // Retrieve the jobs posted by the user
@@ -182,9 +181,7 @@ class JobController extends Controller
         $candidate = $request->user()->candidates()->with('skills')->first();
 
         if (!$candidate) {
-            // Handle the case when candidate information is not found
-            // Return an appropriate response or redirect the user
-            // For example:
+            // Return an appropriate response
             return response()->json(["status" => 'failed', 'error' => 'candidate-information-not-found'], 404);
         }
 
@@ -227,7 +224,7 @@ class JobController extends Controller
         }
 
         // Sort jobs in descending order of relevance score
-        $jobs = $jobs->sortByDesc('relevanceScore');
+        $jobs = $jobs->sortByDesc('relevanceScore')->values()->toArray();
 
         return $jobs;
     }
